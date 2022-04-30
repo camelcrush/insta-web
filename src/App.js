@@ -6,6 +6,7 @@ import Login from "./screens/Login";
 import NotFount from "./screens/NotFound";
 
 function App() {
+  // reactive variables hook
   const isLoggedIn = useReactiveVar(isLoggedInVar);
   return (
     <div>
