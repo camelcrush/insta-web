@@ -5,6 +5,7 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from "react-hook-form";
+import { useLocation } from "react-router";
 import styled from "styled-components";
 import { logUserIn } from "../apollo";
 import AuthLayout from "../components/auth/AuthLayout";
@@ -16,6 +17,7 @@ import Input from "../components/auth/Input";
 import Seperator from "../components/auth/Seperator";
 import PageTitle from "../components/PageTitle";
 import routes from "../routes";
+import { Notification } from "../components/shared";
 
 const FacebookLogin = styled.div`
   color: #385285;
@@ -36,6 +38,7 @@ const LOGIN_MUTATION = gql`
 `;
 
 const Login = () => {
+  const location = useLocation();
   const {
     register,
     handleSubmit,
@@ -43,7 +46,13 @@ const Login = () => {
     getValues,
     setError,
     clearErrors,
-  } = useForm({ mode: "onChange" });
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      username: location?.state?.username || "",
+      password: location?.state?.password || "",
+    },
+  });
 
   // mutation이 완료되면 실행되는 fn
   const onCompleted = (data) => {
@@ -86,6 +95,7 @@ const Login = () => {
         <div>
           <FontAwesomeIcon icon={faInstagram} size="3x" />
         </div>
+        <Notification>{location?.state?.message}</Notification>
         <form onSubmit={handleSubmit(onSubmitValid, onSubmitInValid)}>
           <Input
             {...register("username", {

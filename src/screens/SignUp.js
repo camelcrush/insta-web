@@ -50,6 +50,7 @@ const CREATE_ACCOUNT_MUTATION = gql`
 const SignUp = () => {
   const navigate = useNavigate();
   const onCompleted = (data) => {
+    const { username, password } = getValues();
     const {
       createAccount: { ok, error },
     } = data;
@@ -58,7 +59,9 @@ const SignUp = () => {
         message: error,
       });
     }
-    navigate(routes.home);
+    navigate(routes.home, {
+      state: { message: "Account created. Please log in.", username, password },
+    });
   };
   const [createAccount, { loading }] = useMutation(CREATE_ACCOUNT_MUTATION, {
     onCompleted,
@@ -68,6 +71,7 @@ const SignUp = () => {
     handleSubmit,
     formState: { errors, isValid },
     setError,
+    getValues,
   } = useForm({ mode: "onChange" });
   const onSubmitValid = (data) => {
     if (loading) {
