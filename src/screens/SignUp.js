@@ -72,6 +72,7 @@ const SignUp = () => {
     formState: { errors, isValid },
     setError,
     getValues,
+    clearErrors,
   } = useForm({ mode: "onChange" });
   const onSubmitValid = (data) => {
     if (loading) {
@@ -99,6 +100,7 @@ const SignUp = () => {
             name="firstName"
             type="text"
             placeholder="First Name"
+            onFocus={() => clearErrors()}
           />
           <FormError message={errors?.firstName?.message} />
           <Input
@@ -106,6 +108,7 @@ const SignUp = () => {
             name="lastName"
             type="text"
             placeholder="Last Name"
+            onFocus={() => clearErrors()}
           />
           <FormError message={errors?.lastName?.message} />
           <Input
@@ -113,6 +116,7 @@ const SignUp = () => {
             name="email"
             type="text"
             placeholder="Email"
+            onFocus={() => clearErrors()}
           />
           <FormError message={errors?.email?.message} />
           <Input
@@ -120,6 +124,7 @@ const SignUp = () => {
             name="username"
             type="text"
             placeholder="Username"
+            onFocus={() => clearErrors()}
           />
           <FormError message={errors?.username?.message} />
           <Input
@@ -127,6 +132,7 @@ const SignUp = () => {
             name="password"
             type="password"
             placeholder="Password"
+            onFocus={() => clearErrors()}
           />
           <FormError message={errors?.password?.message} />
           <Button
