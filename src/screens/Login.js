@@ -69,7 +69,7 @@ const Login = () => {
       return;
     }
     // useForm으로부터 data 가져오기
-    const { username, password } = getValues();
+    const { username, password } = getValues(); // or data
     // 가져온 Data login mutation 실행
     login({
       variables: { username, password },
