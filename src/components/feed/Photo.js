@@ -9,7 +9,6 @@ import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-import { FEED_QUERY } from "../../screens/Home";
 import Avatar from "../Avatar";
 import { FatText } from "../shared";
 
@@ -73,9 +72,34 @@ const TOGGLE_LIKE_MUTATION = gql`
 `;
 
 function Photo({ id, user, file, isLiked, likes }) {
+  const updateToggleLike = (cache, result) => {
+    // cache와 mutation을 통해 받은 data를 args로 제공.
+    const {
+      data: {
+        toggleLike: { ok },
+      },
+    } = result;
+    if (ok) {
+      // cache에 업데이트 하기
+      cache.writeFragment({
+        id: `Photo:${id}`,
+        fragment: gql`
+          fragment P on Photo {
+            isLiked
+            likes
+          }
+        `,
+        data: {
+          isLiked: !isLiked,
+          likes: isLiked ? likes - 1 : likes + 1,
+        },
+      });
+    }
+  };
   const [toggleLikeMutation, { loading }] = useMutation(TOGGLE_LIKE_MUTATION, {
     variables: { id },
-    refetchQueries: [{ query: FEED_QUERY }],
+    // update: cache에 접근할 수 있는 option
+    update: updateToggleLike,
   });
   return (
     <PhotoContainer key={id}>
