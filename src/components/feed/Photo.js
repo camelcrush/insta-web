@@ -1,3 +1,4 @@
+import { gql, useMutation } from "@apollo/client";
 import {
   faBookmark,
   faComment,
@@ -53,6 +54,7 @@ const PhotoActions = styled.div`
 
 const PhotoAction = styled.div`
   margin-right: 10px;
+  cursor: pointer;
 `;
 
 const Likes = styled(FatText)`
@@ -60,7 +62,19 @@ const Likes = styled(FatText)`
   display: block;
 `;
 
+const TOGGLE_LIKE_MUTATION = gql`
+  mutation toggleLike($id: Int!) {
+    toggleLike(id: $id) {
+      ok
+      error
+    }
+  }
+`;
+
 function Photo({ id, user, file, isLiked, likes }) {
+  const [toggleLikeMutation, { loading }] = useMutation(TOGGLE_LIKE_MUTATION, {
+    variables: { id },
+  });
   return (
     <PhotoContainer key={id}>
       <PhotoHeader>
@@ -71,7 +85,7 @@ function Photo({ id, user, file, isLiked, likes }) {
       <PhotoData>
         <PhotoActions>
           <div>
-            <PhotoAction>
+            <PhotoAction onClick={toggleLikeMutation}>
               <FontAwesomeIcon
                 style={{ color: isLiked ? "tomato" : "inherit" }}
                 icon={isLiked ? solidHeart : faHeart}
