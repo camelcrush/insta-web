@@ -11,6 +11,10 @@ export const FatLink = styled.span`
   color: rgb(142, 142, 142);
 `;
 
+export const FatText = styled.span`
+  font-weight: 600;
+`;
+
 export const Notification = styled.div`
   color: #2ecc71;
 `;
