@@ -160,7 +160,7 @@ function Photo({
 }
 
 Photo.propTypes = {
-  id: PropTypes.string.isRequired,
+  id: PropTypes.number.isRequired,
   user: PropTypes.shape({
     username: PropTypes.string.isRequired,
     avatar: PropTypes.string,
