@@ -54,7 +54,7 @@ const Comments = ({ photoId, author, caption, commentCount, comments }) => {
     // fake Comment 만들기.
     if (ok && userData?.me) {
       const newComment = {
-        __type: "Comment",
+        __typename: "Comment",
         createdAt: Date.now() + "",
         id,
         payload,
@@ -63,12 +63,28 @@ const Comments = ({ photoId, author, caption, commentCount, comments }) => {
           ...userData?.me,
         },
       };
-      // fake Comment를 가지고 Cache 수정하기.
+      // fake Comment를 가지고 Comment Cachef를 새로 만들기.
+      const newCacheComment = cache.writeFragment({
+        data: newComment,
+        fragment: gql`
+          fragment BSNAME on COMMENT {
+            id
+            createdAt
+            payload
+            isMine
+            user {
+              username
+              avatar
+            }
+          }
+        `,
+      });
+      // 만들어진 Cache를 가지고 Photo cache 수정하기.
       cache.modify({
         id: `Photo:${photoId}`,
         fields: {
           comments(prev) {
-            return [...prev, newComment];
+            return [...prev, newCacheComment];
           },
           commentCount(prev) {
             return prev + 1;
