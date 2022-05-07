@@ -62,6 +62,21 @@ const Likes = styled(FatText)`
   display: block;
 `;
 
+const Comments = styled.div`
+  margin-top: 20px;
+`;
+const Comment = styled.div``;
+const CommentCaption = styled.span`
+  margin-left: 10px;
+`;
+const CommentCount = styled.span`
+  opacity: 0.7;
+  margin: 10px 0px;
+  display: block;
+  font-weight: 600;
+  font-size: 10px;
+`;
+
 const TOGGLE_LIKE_MUTATION = gql`
   mutation toggleLike($id: Int!) {
     toggleLike(id: $id) {
@@ -71,7 +86,16 @@ const TOGGLE_LIKE_MUTATION = gql`
   }
 `;
 
-function Photo({ id, user, file, isLiked, likes }) {
+function Photo({
+  id,
+  user,
+  file,
+  isLiked,
+  likes,
+  caption,
+  commentCount,
+  comments,
+}) {
   const updateToggleLike = (cache, result) => {
     // cache와 mutation을 통해 받은 data를 args로 제공.
     const {
@@ -138,6 +162,21 @@ function Photo({ id, user, file, isLiked, likes }) {
           </div>
         </PhotoActions>
         <Likes>{likes === 1 ? "1 like" : `${likes} likes`}</Likes>
+        <Comments>
+          <Comment>
+            <FatText>{user.username}</FatText>
+            <CommentCaption>{caption}</CommentCaption>
+          </Comment>
+          <CommentCount>
+            {commentCount === 1 ? `1 comment` : `${commentCount} comments`}
+          </CommentCount>
+          {comments?.map((comment) => (
+            <Comment>
+              <FatText>{comment.user.username}</FatText>
+              <CommentCaption>{comment.payload}</CommentCaption>
+            </Comment>
+          ))}
+        </Comments>
       </PhotoData>
     </PhotoContainer>
   );
@@ -149,9 +188,24 @@ Photo.propTypes = {
     username: PropTypes.string.isRequired,
     avatar: PropTypes.string,
   }),
+  caption: PropTypes.string,
   file: PropTypes.string.isRequired,
-  isLiked: PropTypes.string.isRequired,
-  likes: PropTypes.string.isRequired,
+  isLiked: PropTypes.bool.isRequired,
+  likes: PropTypes.number.isRequired,
+  commentCount: PropTypes.number.isRequired,
+  comments: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      user: PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        username: PropTypes.string.isRequired,
+        avatar: PropTypes.string,
+      }),
+      payload: PropTypes.string.isRequired,
+      isMine: PropTypes.bool.isRequired,
+      createdAt: PropTypes.string.isRequired,
+    })
+  ),
 };
 
 export default Photo;
