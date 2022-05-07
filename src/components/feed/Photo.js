@@ -90,29 +90,21 @@ function Photo({
       },
     } = result;
     if (ok) {
-      const fragmentId = `Photo:${id}`;
-      const fragment = gql`
-        fragment P on Photo {
-          isLiked
-          likes
-        }
-      `;
-      // cache data 가져오기
-      const readCache = cache.readFragment({
-        id: fragmentId,
-        fragment,
-      });
-      if ("isLiked" in readCache && "likes" in readCache) {
-        // cache에 업데이트 하기
-        cache.writeFragment({
-          id: fragmentId,
-          fragment,
-          data: {
-            isLiked: !isLiked,
-            likes: isLiked ? likes - 1 : likes + 1,
+      const photoId = `Photo:${id}`;
+      cache.modify({
+        id: photoId,
+        fields: {
+          isLiked(prev) {
+            return !prev;
           },
-        });
-      }
+          likes(prev) {
+            if (isLiked) {
+              return prev - 1;
+            }
+            return prev + 1;
+          },
+        },
+      });
     }
   };
   const [toggleLikeMutation, { loading }] = useMutation(TOGGLE_LIKE_MUTATION, {
