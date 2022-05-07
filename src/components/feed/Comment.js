@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 import { FatText } from "../shared";
 import { Link } from "react-router-dom";
+import { gql, useMutation } from "@apollo/client";
 
 const CommentsContainer = styled.div`
   margin-top: 10px;
@@ -19,7 +20,44 @@ const CommentCaption = styled.span`
   }
 `;
 
-const Comment = ({ author, payload }) => {
+const DELETE_COMMENT_MUTATION = gql`
+  mutation deleteComment($id: Int!) {
+    deleteComment(id: $id) {
+      ok
+      error
+    }
+  }
+`;
+
+const Comment = ({ id, photoId, isMine, author, payload }) => {
+  const updateDeleteComment = (cache, result) => {
+    const {
+      data: {
+        deleteComment: { ok },
+      },
+    } = result;
+    if (ok) {
+      // evict() cache 객체 지우기
+      cache.evict({ id: `Comment:${id}` });
+      cache.modify({
+        id: `Photo:${photoId}`,
+        fields: {
+          commentCount(prev) {
+            return prev - 1;
+          },
+        },
+      });
+    }
+  };
+  const [deleteCommentMutation] = useMutation(DELETE_COMMENT_MUTATION, {
+    variables: {
+      id,
+    },
+    update: updateDeleteComment,
+  });
+  const onDeleteClick = () => {
+    deleteCommentMutation();
+  };
   return (
     <CommentsContainer>
       <FatText>{author}</FatText>
@@ -34,11 +72,15 @@ const Comment = ({ author, payload }) => {
           )
         )}
       </CommentCaption>
+      {isMine ? <button onClick={onDeleteClick}> X </button> : null}
     </CommentsContainer>
   );
 };
 
 Comment.propTypes = {
+  id: PropTypes.number,
+  photoId: PropTypes.number,
+  isMine: PropTypes.bool,
   author: PropTypes.string.isRequired,
   payload: PropTypes.string.isRequired,
 };
