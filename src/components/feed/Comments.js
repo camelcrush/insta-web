@@ -2,10 +2,11 @@ import { gql, useMutation } from "@apollo/client";
 import PropTypes from "prop-types";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
+import useUser from "../../hooks/useUser";
 import Comment from "./Comment";
 
 const CommentsContainer = styled.div`
-  margin-top: 20px;
+  margin-top: 7px;
 `;
 
 const CommentCount = styled.span`
@@ -33,23 +34,63 @@ const CREATE_COMMENT_MUTATION = gql`
   mutation createComment($photoId: Int!, $payload: String!) {
     createComment(photoId: $photoId, payload: $payload) {
       ok
+      id
       error
     }
   }
 `;
 
 const Comments = ({ photoId, author, caption, commentCount, comments }) => {
+  const { data: userData } = useUser();
+  const createCommentUpdate = (cache, result) => {
+    // comment가 성공적으로 만들어지면 실행되는 update fn, cache와 mutation response를 받아올 수 있음.
+    const { payload } = getValues();
+    setValue("payload", "");
+    const {
+      data: {
+        createComment: { ok, id },
+      },
+    } = result;
+    // fake Comment 만들기.
+    if (ok && userData?.me) {
+      const newComment = {
+        __type: "Comment",
+        createdAt: Date.now() + "",
+        id,
+        payload,
+        isMine: true,
+        user: {
+          ...userData?.me,
+        },
+      };
+      // fake Comment를 가지고 Cache 수정하기.
+      cache.modify({
+        id: `Photo:${photoId}`,
+        fields: {
+          comments(prev) {
+            return [...prev, newComment];
+          },
+          commentCount(prev) {
+            return prev + 1;
+          },
+        },
+      });
+    }
+  };
   const [createCommentMutation, { loading }] = useMutation(
-    CREATE_COMMENT_MUTATION
+    CREATE_COMMENT_MUTATION,
+    {
+      update: createCommentUpdate,
+    }
   );
-  const { register, handleSubmit, setValue } = useForm();
+  const { register, handleSubmit, setValue, getValues } = useForm();
   const onValid = (data) => {
+    // form data가 유효하면 실행되는 fn, 여기서 mutation을 실행
     const { payload } = data;
     if (loading) {
       return;
     }
     createCommentMutation({ variables: { photoId, payload } });
-    setValue("payload", "");
   };
   return (
     <CommentsContainer>
