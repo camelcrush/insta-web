@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router";
 
 const { useQuery, gql, useReactiveVar } = require("@apollo/client");
 const { isLoggedInVar, logUserOut } = require("../apollo");
