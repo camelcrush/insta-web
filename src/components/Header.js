@@ -60,13 +60,15 @@ const Header = () => {
           {isLoggedIn ? (
             <IconsContainer>
               <Icon>
-                <FontAwesomeIcon icon={faHome} size="lg" />
+                <Link to={`/`}>
+                  <FontAwesomeIcon icon={faHome} size="lg" />
+                </Link>
               </Icon>
               <Icon>
                 <FontAwesomeIcon icon={faCompass} size="lg" />
               </Icon>
               <Icon>
-                <Link to={`users/${data?.me?.username}`}>
+                <Link to={`/users/${data?.me?.username}`}>
                   <Avatar url={data?.me?.avatar} />
                 </Link>
               </Icon>
